@@ -3,10 +3,10 @@ extern crate serde_derive;
 extern crate actix_web;
 extern crate base64;
 extern crate serde_json;
+extern crate chashmap;
 
 use base64::{decode, encode};
 
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
@@ -14,7 +14,8 @@ use std::str;
 use std::sync::Arc;
 
 use actix_web::http::Method;
-use actix_web::{dev::Handler, server, App, HttpRequest, HttpResponse, Json};
+use actix_web::{dev::Handler, error, server, App, HttpMessage, HttpRequest, HttpResponse, Json};
+use chashmap::CHashMap;
 use serde_json::Value;
 
 #[derive(Serialize)]
@@ -77,7 +78,7 @@ impl<S> Handler<S> for UsersHandler {
 }
 
 struct PersonApiHandler {
-    profiles: Arc<HashMap<String, Value>>,
+    profiles: Arc<CHashMap<String, Value>>,
 }
 
 impl<S> Handler<S> for PersonApiHandler {
@@ -85,14 +86,28 @@ impl<S> Handler<S> for PersonApiHandler {
 
     /// Handle request
     fn handle(&mut self, req: HttpRequest<S>) -> Self::Result {
+        match *req.method() {
+            Method::GET => {
         if let Some(id) = req.match_info().get("id") {
-            if let Some(profile) = self.profiles.get(id) {
+            if let Some(profile) = self.profiles.get(&String::from(id)) {
                 return HttpResponse::Ok()
                     .content_type("application/json")
-                    .json(profile);
+                    .json(profile.clone());
             }
         }
         HttpResponse::Ok().body("")
+
+            },
+            Method::POST => {
+    let user_id = req.payload()
+            .and_then(|o| o.get("user_id"))
+        .and_then(|id| id.as_str())
+        .map(|s| s.to_owned());
+    println!("Received update for {:?}", user_id);
+        HttpResponse::Ok().body("")
+            }
+
+        }
     }
 }
 
@@ -140,7 +155,7 @@ fn get_all_user_ids(profile_json: &Value) -> Result<Vec<Value>, String> {
 
     Err(String::from("nope"))
 }
-fn index_profiles_by_user_id(profile_json: &Value) -> Result<HashMap<String, Value>, String> {
+fn index_profiles_by_user_id(profile_json: &Value) -> Result<CHashMap<String, Value>, String> {
     if let Some(profiles) = profile_json.as_array() {
         return Ok(profiles
             .into_iter()
@@ -150,7 +165,7 @@ fn index_profiles_by_user_id(profile_json: &Value) -> Result<HashMap<String, Val
                     .and_then(|id| id.as_str().map(str::to_owned))
                     .map(|s| (s, p.clone()))
             })
-            .collect::<HashMap<String, Value>>());
+            .collect::<CHashMap<String, Value>>());
     }
     Err(String::from("nope"))
 }
