@@ -1,27 +1,30 @@
 use base64::encode;
 use json_patch::merge;
+use rocket::response::status::BadRequest;
 use rocket::State;
 use rocket_contrib::{Json, Value};
 
-use data::*;
+use crate::data::*;
 
 #[post("/", format = "application/json", data = "<msg>")]
-pub fn cis_update(msg: Json, ctx: State<(Ctx)>) -> Json<Value> {
+pub fn cis_update(msg: Json, store: State<(ProfileStore)>) -> Result<Json, BadRequest<Json>> {
     let profile_update = msg.into_inner();
-    match update(&profile_update, ctx) {
-        Some(update_id) => Json(json!(update_id)),
-        None => Json(Value::Null)
+    match update(&profile_update, store) {
+        Some(update_id) => Ok(Json(json!(update_id))),
+        None => Err(BadRequest(Some(Json(
+            json!({ "error": "unable to process update" }),
+        )))),
     }
 }
 
-fn update(profile_update: &Value, ctx: State<(Ctx)>) -> Option<UpdateId> {
+fn update(profile_update: &Value, store: State<(ProfileStore)>) -> Option<UpdateId> {
     let user_id = profile_update
         .as_object()
         .and_then(|o| o.get("user_id"))
         .and_then(|id| id.as_str())
         .map(String::from)?;
     let update_id = encode(&user_id);
-    ctx.ctx.lock().ok().map(|mut profiles| {
+    store.lock().ok().map(|mut profiles| {
         profiles
             .get_mut(&user_id)
             .map(|profile| merge(profile, &profile_update))
