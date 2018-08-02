@@ -20,15 +20,15 @@ use std::sync::Mutex;
 
 use crate::cis::vault::*;
 
-fn main() {
-    let profile_json = read_profiles().unwrap();
-    let profiles = index_profiles_by_user_id(&profile_json).unwrap();
+fn main() -> Result<(), String> {
+    let profile_json = read_profiles()?;
+    let profiles = index_profiles_by_user_id(&profile_json)?;
     let store = Mutex::new(profiles);
 
     let config = Config::build(Environment::Staging)
         .port(8888)
         .finalize()
-        .unwrap();
+        .map_err(|e| format!("{}", e))?;
     rocket::custom(config, true)
         .mount("/cisUpdate", routes![cis::update::cis_update])
         .mount("/cisStatus/", routes![cis::status::cis_status])
@@ -37,4 +37,5 @@ fn main() {
         .mount("/admin/persist", routes![admin::persist::persist])
         .manage(store)
         .launch();
+    Ok(())
 }

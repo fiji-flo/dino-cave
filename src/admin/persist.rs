@@ -8,7 +8,7 @@ use rocket_contrib::{Json, Value};
 pub fn persist(store: State<ProfileStore>) -> Result<Json, BadRequest<Json>> {
     let profiles = store
         .lock()
-        .unwrap()
+        .map_err(|e| BadRequest(Some(Json(json!({ "error": format!("{}", e) })))))?
         .values()
         .cloned()
         .collect::<Vec<Value>>();
