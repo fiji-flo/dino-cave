@@ -35,6 +35,7 @@ fn main() -> Result<(), String> {
         .mount("/cisUpdate", routes![cis::update::cis_update])
         .mount("/cisStatus/", routes![cis::status::cis_status])
         .mount("/personApi/", routes![cis::person_api::person_api])
+        .mount("/admin/dump", routes![admin::dump::dump])
         .mount("/admin/users", routes![admin::users::users])
         .mount("/admin/persist", routes![admin::persist::persist])
         .manage(store)

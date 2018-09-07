@@ -31,6 +31,7 @@ pub fn index_profiles_by_user_id(profile_json: &Value) -> Result<HashMap<String,
             .filter_map(|p| {
                 p.as_object()
                     .and_then(|o| o.get("user_id"))
+                    .and_then(|o| o.get("value"))
                     .and_then(|id| id.as_str().map(str::to_owned))
                     .map(|s| (s, p.clone()))
             })
