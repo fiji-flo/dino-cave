@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dino-cave-deployment
+  namespace: dino-park
+  labels:
+    app: dino-cave
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dino-cave
+  template:
+    metadata:
+      labels:
+        app: dino-cave
+    spec:
+      containers:
+        - name: dino-cave
+          image: mozillaparsys/dino-cave:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8888
