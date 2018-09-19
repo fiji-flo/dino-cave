@@ -10,4 +10,3 @@ pub fn dump(store: State<ProfileStore>) -> Result<Json, BadRequest<Json>> {
         .map_err(|e| BadRequest(Some(Json(json!({ "error": format!("{}", e) })))))
         .map(|s| Json(json!(s.clone())))
 }
-
