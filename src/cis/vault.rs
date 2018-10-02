@@ -33,7 +33,8 @@ pub fn index_profiles_by_user_id(profile_json: &Value) -> Result<HashMap<String,
                     .and_then(|o| o.get("value"))
                     .and_then(|id| id.as_str().map(str::to_owned))
                     .map(|s| (s, p.clone()))
-            }).collect::<HashMap<String, Value>>());
+            })
+            .collect::<HashMap<String, Value>>());
     }
     Err(String::from("nope"))
 }

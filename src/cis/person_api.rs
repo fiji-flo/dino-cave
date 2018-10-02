@@ -13,6 +13,7 @@ pub fn person_api(user_id: String, store: State<ProfileStore>) -> Result<Json, N
                 .get(&user_id)
                 .cloned()
                 .ok_or_else(|| "profile not found".to_owned())
-        }).map(Json)
+        })
+        .map(Json)
         .map_err(|e| NotFound(Json(json!({ "error": e }))))
 }
