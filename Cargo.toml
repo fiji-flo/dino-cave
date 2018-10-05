@@ -5,12 +5,11 @@ authors = ["Florian Merz <fmerz@mozilla.com>"]
 
 [dependencies]
 serde = "1.0.79"
-serde_json = "1.0.28"
+serde_json = "1.0.32"
 base64 = "0.9.3"
 serde_derive = "1.0.79"
-rocket = "0.3.16"
-rocket_codegen = "0.3.16"
-rocket_contrib = "0.3.16"
-json-patch = "*"
+rocket = "0.3.17"
+rocket_codegen = "0.3.17"
+rocket_contrib = "0.3.17"
+json-patch = "0.2.2"
 lazy_static = "1.1"
-maud = { version = "0.18.1", features = ["rocket"] }

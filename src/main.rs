@@ -12,7 +12,6 @@ extern crate serde_derive;
 extern crate json_patch;
 #[macro_use]
 extern crate lazy_static;
-extern crate maud;
 
 mod admin;
 mod cis;
@@ -39,7 +38,6 @@ fn main() -> Result<(), String> {
         .mount("/personApi/", routes![cis::person_api::person_api])
         .mount("/admin/dump", routes![admin::dump::dump])
         .mount("/admin/users", routes![admin::users::users])
-        .mount("/admin/users/html", routes![admin::users::users_html])
         .mount("/admin/persist", routes![admin::persist::persist])
         .manage(store)
         .launch();
