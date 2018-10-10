@@ -1,6 +1,5 @@
 #![feature(rust_2018_preview)]
 #![feature(plugin)]
-#![feature(proc_macro_non_items)]
 #![plugin(rocket_codegen)]
 extern crate rocket;
 #[macro_use]
